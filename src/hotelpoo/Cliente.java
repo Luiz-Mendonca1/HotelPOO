@@ -27,6 +27,38 @@ public class Cliente {
     public String getTelefone() { return telefone; }
     public String getEmail() { return email; }
     
+    // Setters para alteração de dados
+    public void setNome(String nome) { 
+        if (nome != null && !nome.trim().isEmpty()) {
+            this.nome = nome.trim(); 
+        }
+    }
+    
+    public void setDocumento(String documento) { 
+        if (documento != null && !documento.trim().isEmpty()) {
+            this.documento = documento.trim(); 
+        }
+    }
+    
+    public void setTelefone(String telefone) { 
+        if (telefone != null && !telefone.trim().isEmpty()) {
+            this.telefone = telefone.trim(); 
+        }
+    }
+    
+    public void setEmail(String email) { 
+        if (email != null && !email.trim().isEmpty()) {
+            this.email = email.trim(); 
+        }
+    }
+    
+    public void alterarDados(String nome, String documento, String telefone, String email) {
+        setNome(nome);
+        setDocumento(documento);
+        setTelefone(telefone);
+        setEmail(email);
+    }
+    
     @Override
     public String toString() {
         return nome + " (" + documento + ")";
