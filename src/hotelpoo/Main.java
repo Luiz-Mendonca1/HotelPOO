@@ -12,7 +12,7 @@ public class Main {
     public static void main(String[] args) {
         System.out.println("🏨 Iniciando Sistema de Hotel POO...");
         
-        // Criar e executar o menu interativo
+        // Inicio do MENU 
         Menu menu = new Menu();
         menu.executar();
     }

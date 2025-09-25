@@ -38,7 +38,7 @@ public class Menu {
     
     private void exibirMenu() {
         System.out.println("\n==================================================");
-        System.out.println("           SISTEMA DE HOTEL POO");
+        System.out.println("HOTEL ''É o Que Tem Pra Hoje''\nConforto? Talvez. Cama? Com certeza!\nA gente não promete luxo, mas a cama tá limpa (a maioria das vezes).");
         System.out.println("==================================================");
         System.out.println("1.  Cadastrar Cliente");
         System.out.println("2.  Listar Clientes");
@@ -46,11 +46,13 @@ public class Menu {
         System.out.println("4.  Remover Cliente");
         System.out.println("5.  Consultar Quartos Disponíveis");
         System.out.println("6.  Fazer Reserva");
-        System.out.println("7.  Cancelar Reserva");
-        System.out.println("8.  Transferir Hóspede");
-        System.out.println("9.  Listar Reservas Ativas");
-        System.out.println("10. Gerar Relatório Completo");
-        System.out.println("11. Gerar Relatório Resumido");
+        System.out.println("7.  Renovar Reserva");
+        System.out.println("8.  Cancelar Reserva");
+        System.out.println("9.  Transferir Hóspede");
+        System.out.println("10. Listar Reservas Ativas");
+        System.out.println("11. Gerar Relatório Completo");
+        System.out.println("12. Gerar Relatório Resumido");
+        System.out.println("13. Feedbacks dos Hóspedes");
         System.out.println("0.  Sair");
         System.out.println("==================================================");
         System.out.print("Escolha uma opção: ");
@@ -85,24 +87,30 @@ public class Menu {
                 fazerReserva();
                 break;
             case 7:
-                cancelarReserva();
+                renovarReserva();
                 break;
             case 8:
                 transferirHospede();
                 break;
             case 9:
-                listarReservasAtivas();
+                transferirHospede();
                 break;
             case 10:
-                hotel.gerarRelatorio();
+             listarReservasAtivas();
                 break;
             case 11:
-                hotel.gerarRelatorioResumido();
+            hotel.gerarRelatorio();
+                break;
+            case 12:
+            hotel.gerarRelatorioResumido();
+                break;
+            case 13:
+                feedbacksHospedes();
                 break;
             case 0:
                 break;
             default:
-                System.out.println("\n❌ Opção inválida! Tente novamente.");
+                System.out.println("\n Opção inválida! Tente novamente.");
         }
         
         if (opcao != 0) {
@@ -129,9 +137,18 @@ public class Menu {
         try {
             Cliente cliente = new Cliente(nome, documento, telefone, email);
             hotel.adicionarCliente(cliente);
-            System.out.println("\n✅ Cliente cadastrado com sucesso!");
+            System.out.println("\n Cliente cadastrado com sucesso!");
+            System.out.println(" Nome: " + nome);
+            System.out.println(" CPF: " + documento);
+            System.out.println(" Telefone: " + telefone);
+            System.out.println(" Email: " + email);
+        } catch (IllegalArgumentException e) {
+            System.out.println("\n Erro de validação: " + e.getMessage());
+            System.out.println("\n Dicas:");
+            System.out.println("  CPF deve ter 11 dígitos (ex: 12345678901 ou 123.456.789-01)");
+            System.out.println("  Email deve conter @ (ex: usuario@dominio.com)");
         } catch (Exception e) {
-            System.out.println("\n❌ Erro ao cadastrar cliente: " + e.getMessage());
+            System.out.println("\n Erro inesperado ao cadastrar cliente: " + e.getMessage());
         }
     }
     
@@ -158,7 +175,7 @@ public class Menu {
         
         Cliente cliente = hotel.buscarCliente(documento);
         if (cliente == null) {
-            System.out.println("❌ Cliente não encontrado!");
+            System.out.println("Cliente não encontrado!");
             return;
         }
         
@@ -181,11 +198,24 @@ public class Menu {
         String novoEmail = scanner.nextLine();
         if (novoEmail.trim().isEmpty()) novoEmail = cliente.getEmail();
         
-        boolean sucesso = hotel.alterarDadosCliente(documento, novoNome, novoDocumento, novoTelefone, novoEmail);
-        if (sucesso) {
-            System.out.println("✅ Dados alterados com sucesso!");
-        } else {
-            System.out.println("❌ Erro ao alterar dados!");
+        try {
+            boolean sucesso = hotel.alterarDadosCliente(documento, novoNome, novoDocumento, novoTelefone, novoEmail);
+            if (sucesso) {
+                System.out.println("\n Dados alterados com sucesso!");
+                System.out.println(" Novo nome: " + novoNome);
+                System.out.println(" Novo CPF: " + novoDocumento);
+                System.out.println(" Novo telefone: " + novoTelefone);
+                System.out.println(" Novo email: " + novoEmail);
+            } else {
+                System.out.println("\n Erro ao alterar dados!");
+            }
+        } catch (IllegalArgumentException e) {
+            System.out.println("\n Erro de validação: " + e.getMessage());
+            System.out.println("\n Dicas:");
+            System.out.println("   • CPF deve ter 11 dígitos (ex: 12345678901 ou 123.456.789-01)");
+            System.out.println("   • Email deve conter @ (ex: usuario@dominio.com)");
+        } catch (Exception e) {
+            System.out.println("\n Erro inesperado: " + e.getMessage());
         }
     }
     
@@ -197,9 +227,9 @@ public class Menu {
         
         boolean sucesso = hotel.removerCliente(documento);
         if (sucesso) {
-            System.out.println("✅ Cliente removido com sucesso!");
+            System.out.println("Cliente removido com sucesso!");
         } else {
-            System.out.println("❌ Erro ao remover cliente! Verifique se o CPF está correto e se não há reservas ativas.");
+            System.out.println("Erro ao remover cliente! Verifique se o CPF está correto e se não há reservas ativas.");
         }
     }
     
@@ -217,9 +247,9 @@ public class Menu {
     private void fazerReserva() {
         System.out.println("\n=== FAZER RESERVA ===");
         
-        // Listar clientes
+       
         if (hotel.getClientes().isEmpty()) {
-            System.out.println("❌ Nenhum cliente cadastrado! Cadastre um cliente primeiro.");
+            System.out.println(" Nenhum cliente cadastrado! Cadastre um cliente primeiro.");
             return;
         }
         
@@ -232,15 +262,15 @@ public class Menu {
         int indiceCliente = Integer.parseInt(scanner.nextLine()) - 1;
         
         if (indiceCliente < 0 || indiceCliente >= hotel.getClientes().size()) {
-            System.out.println("❌ Cliente inválido!");
+            System.out.println(" Cliente inválido!");
             return;
         }
         
         Cliente cliente = hotel.getClientes().get(indiceCliente);
         
-        // Listar quartos disponíveis
+       
         if (hotel.getQuartosDisponiveis().isEmpty()) {
-            System.out.println("❌ Nenhum quarto disponível!");
+            System.out.println(" Nenhum quarto disponível!");
             return;
         }
         
@@ -253,13 +283,13 @@ public class Menu {
         int indiceQuarto = Integer.parseInt(scanner.nextLine()) - 1;
         
         if (indiceQuarto < 0 || indiceQuarto >= hotel.getQuartosDisponiveis().size()) {
-            System.out.println("❌ Quarto inválido!");
+            System.out.println(" Quarto inválido!");
             return;
         }
         
         Quarto quarto = hotel.getQuartosDisponiveis().get(indiceQuarto);
         
-        // Datas
+      
         System.out.print("Data de check-in (dd/MM/yyyy): ");
         LocalDate checkIn = lerData();
         if (checkIn == null) return;
@@ -270,11 +300,41 @@ public class Menu {
         
         try {
             Reserva reserva = hotel.fazerReserva(cliente, quarto, checkIn, checkOut);
-            System.out.println("\n✅ Reserva realizada com sucesso!");
+            System.out.println("\n Reserva realizada com sucesso!");
             System.out.println("ID da Reserva: " + reserva.getId());
             System.out.println("Valor Total: R$ " + String.format("%.2f", reserva.getValorTotal()));
         } catch (Exception e) {
-            System.out.println("\n❌ Erro ao fazer reserva: " + e.getMessage());
+            System.out.println("\n Erro ao fazer reserva: " + e.getMessage());
+        }
+    }
+
+    private void renovarReserva() {
+        System.out.println("\n=== RENOVAR RESERVA ===");
+        
+        if (hotel.getReservasAtivas().isEmpty()) {
+            System.out.println("Nenhuma reserva ativa encontrada.");
+            return;
+        }
+        
+        System.out.println("Reservas ativas:");
+        for (Reserva reserva : hotel.getReservasAtivas()) {
+            System.out.println("• " + reserva);
+        }
+        
+        System.out.print("ID da reserva para renovar: ");
+        int idReserva = Integer.parseInt(scanner.nextLine());
+        
+        System.out.print("Nova data de check-out (dd/MM/yyyy): ");
+        LocalDate novaDataCheckOut = lerData();
+        if (novaDataCheckOut == null) return;
+        
+        try {
+            ResultadoRenovacao resultado = hotel.renovarReservaComDetalhes(idReserva, novaDataCheckOut);
+            System.out.println("\n" + resultado.getMensagemCompleta());
+        } catch (NumberFormatException e) {
+            System.out.println(" ID da reserva inválido! Digite apenas números.");
+        } catch (Exception e) {
+            System.out.println(" Erro ao renovar reserva: " + e.getMessage());
         }
     }
     
@@ -296,9 +356,9 @@ public class Menu {
         
         boolean sucesso = hotel.cancelarReserva(idReserva);
         if (sucesso) {
-            System.out.println("✅ Reserva cancelada com sucesso!");
+            System.out.println(" Reserva cancelada com sucesso!");
         } else {
-            System.out.println("❌ Erro ao cancelar reserva! Verifique o ID.");
+            System.out.println(" Erro ao cancelar reserva! Verifique o ID.");
         }
     }
     
@@ -323,9 +383,9 @@ public class Menu {
         
         boolean sucesso = hotel.transferirHospede(idReserva, novoQuarto);
         if (sucesso) {
-            System.out.println("✅ Hóspede transferido com sucesso!");
+            System.out.println(" Hóspede transferido com sucesso!");
         } else {
-            System.out.println("❌ Erro na transferência! Verifique o ID da reserva e o número do quarto.");
+            System.out.println(" Erro na transferência! Verifique o ID da reserva e o número do quarto.");
         }
     }
     
@@ -345,8 +405,116 @@ public class Menu {
             String dataStr = scanner.nextLine();
             return LocalDate.parse(dataStr, formatter);
         } catch (DateTimeParseException e) {
-            System.out.println("❌ Formato de data inválido! Use dd/MM/yyyy");
+            System.out.println(" Formato de data inválido! Use dd/MM/yyyy");
             return null;
+        }
+    }
+
+    private void feedbacksHospedes() {
+        int opcao;
+        do {
+            System.out.println("\n===  FEEDBACKS DOS HÓSPEDES ===");
+            System.out.println("1. Visualizar Feedbacks");
+            System.out.println("2. Deixar um Feedback");
+            System.out.println("0. Voltar ao Menu Principal");
+            System.out.println("=====================================");
+            System.out.print("Escolha uma opção: ");
+            
+            opcao = lerOpcao();
+            
+            switch (opcao) {
+                case 1:
+                    visualizarFeedbacks();
+                    break;
+                case 2:
+                    deixarFeedback();
+                    break;
+                case 0:
+                    break;
+                default:
+                    System.out.println("\n Opção inválida! Tente novamente.");
+            }
+            
+            if (opcao != 0) {
+                System.out.println("\nPressione Enter para continuar...");
+                scanner.nextLine();
+            }
+        } while (opcao != 0);
+    }
+    
+    private void visualizarFeedbacks() {
+        System.out.println("\n===  FEEDBACKS DOS HÓSPEDES ===");
+        
+        if (hotel.getFeedbacks().isEmpty()) {
+            System.out.println(" Nenhum feedback registrado ainda.");
+            System.out.println(" Seja o primeiro a deixar sua opinião!");
+            return;
+        }
+        
+        System.out.println(" Veja o que nossos queridos hóspedes estão falando:");
+        System.out.println("─".repeat(60));
+        
+        for (int i = 0; i < hotel.getFeedbacks().size(); i++) {
+            String feedback = hotel.getFeedbacks().get(i);
+            System.out.println(" " + (i + 1) + ". " + feedback);
+            System.out.println();
+        }
+        
+        System.out.println("─".repeat(60));
+        System.out.println(" Total de feedbacks: " + hotel.getFeedbacks().size());
+    }
+    
+    private void deixarFeedback() {
+        System.out.println("\n===   DEIXAR FEEDBACK ===");
+        
+        if (hotel.getClientes().isEmpty()) {
+            System.out.println(" Ops! Você precisa estar cadastrado como cliente para deixar um feedback.");
+            System.out.println(" Vá ao menu principal e cadastre-se primeiro (opção 1).");
+            return;
+        }
+        
+        System.out.println("👥 Clientes cadastrados:");
+        for (int i = 0; i < hotel.getClientes().size(); i++) {
+            Cliente cliente = hotel.getClientes().get(i);
+            System.out.println((i + 1) + ". " + cliente.getNome());
+        }
+        
+        System.out.print("\n👤 Escolha seu número de cliente: ");
+        try {
+            int indiceCliente = Integer.parseInt(scanner.nextLine()) - 1;
+            
+            if (indiceCliente < 0 || indiceCliente >= hotel.getClientes().size()) {
+                System.out.println(" Cliente inválido!");
+                return;
+            }
+            
+            Cliente cliente = hotel.getClientes().get(indiceCliente);
+            
+            System.out.println("\n Olá, " + cliente.getNome() + "! Conte-nos sobre sua experiência:");
+            System.out.println(" Seja criativo! Nossos outros hóspedes adoram ler feedbacks divertidos.");
+            System.out.print(" Seu feedback: ");
+            String feedbackTexto = scanner.nextLine();
+            
+            if (feedbackTexto.trim().isEmpty()) {
+                System.out.println(" Feedback não pode estar vazio!");
+                return;
+            }
+            
+            
+            String feedbackFormatado = "\"" + feedbackTexto + "\" – " + 
+                cliente.getNome().split(" ")[0] + " " + 
+                cliente.getNome().split(" ")[cliente.getNome().split(" ").length - 1].charAt(0) + ".";
+            
+            hotel.adicionarFeedback(feedbackFormatado);
+            
+            System.out.println("\n Feedback registrado com sucesso!");
+            System.out.println(" Obrigado por compartilhar sua experiência conosco!");
+            System.out.println(" Seu feedback: " + feedbackFormatado);
+            
+        } catch (NumberFormatException e) {
+            System.out.println(" Por favor, digite apenas o número do cliente!");
+        } catch (Exception e) {
+            System.out.println(" Erro inesperado: " + e.getMessage());
         }
     }
 }

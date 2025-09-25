@@ -15,10 +15,40 @@ public class Cliente {
     private String email;
     
     public Cliente(String nome, String documento, String telefone, String email) {
-        this.nome = nome;
-        this.documento = documento;
-        this.telefone = telefone;
-        this.email = email;
+        if (!validarCPF(documento)) {
+            throw new IllegalArgumentException("CPF deve ter exatamente 11 dígitos (apenas números) ou 14 caracteres com formatação (xxx.xxx.xxx-xx)");
+        }
+        if (!validarEmail(email)) {
+            throw new IllegalArgumentException("Email deve conter o símbolo @ para ser válido");
+        }
+        
+        this.nome = nome.trim();
+        this.documento = documento.trim();
+        this.telefone = telefone.trim();
+        this.email = email.trim();
+    }
+    
+    // Métodos de validação
+    private boolean validarCPF(String cpf) {
+        if (cpf == null || cpf.trim().isEmpty()) {
+            return false;
+        }
+        
+        // Remove formatação (pontos, hífens e espaços)
+        String cpfLimpo = cpf.replaceAll("[^0-9]", "");
+        
+        // Verifica se tem exatamente 11 dígitos
+        return cpfLimpo.length() == 11;
+    }
+    
+    private boolean validarEmail(String email) {
+        if (email == null || email.trim().isEmpty()) {
+            return false;
+        }
+        
+        // Verifica se contém @ e tem pelo menos 3 caracteres (x@x)
+        return email.contains("@") && email.length() >= 3 && 
+               email.indexOf("@") > 0 && email.indexOf("@") < email.length() - 1;
     }
     
     // Getters
@@ -36,6 +66,9 @@ public class Cliente {
     
     public void setDocumento(String documento) { 
         if (documento != null && !documento.trim().isEmpty()) {
+            if (!validarCPF(documento)) {
+                throw new IllegalArgumentException("CPF deve ter exatamente 11 dígitos (apenas números) ou 14 caracteres com formatação (xxx.xxx.xxx-xx)");
+            }
             this.documento = documento.trim(); 
         }
     }
@@ -48,6 +81,9 @@ public class Cliente {
     
     public void setEmail(String email) { 
         if (email != null && !email.trim().isEmpty()) {
+            if (!validarEmail(email)) {
+                throw new IllegalArgumentException("Email deve conter o símbolo @ para ser válido");
+            }
             this.email = email.trim(); 
         }
     }

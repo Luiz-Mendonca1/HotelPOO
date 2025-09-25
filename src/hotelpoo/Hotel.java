@@ -1,7 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
- */
+
 package hotelpoo;
 
 /**
@@ -9,6 +6,7 @@ package hotelpoo;
  * @author luize
  */
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,22 +14,33 @@ public class Hotel {
     private List<Quarto> quartos;
     private List<Cliente> clientes;
     private List<Reserva> reservas;
+    private List<String> feedbacks;
     
     public Hotel() {
         this.quartos = new ArrayList<>();
         this.clientes = new ArrayList<>();
         this.reservas = new ArrayList<>();
+        this.feedbacks = new ArrayList<>();
         inicializarQuartos();
+        inicializarFeedbacks();
     }
     
     private void inicializarQuartos() {
-        // Adicionando quartos de exemplo
+       
         quartos.add(new QuartoSimples("101", 100.0));
         quartos.add(new QuartoSimples("102", 100.0));
         quartos.add(new QuartoLuxo("201", 150.0));
         quartos.add(new QuartoLuxo("202", 150.0));
         quartos.add(new Suite("301", 200.0));
         quartos.add(new Suite("302", 200.0));
+    }
+    
+    private void inicializarFeedbacks() {
+       
+        feedbacks.add("Tinha barata, mas era simpática. João P.");
+        feedbacks.add("O chuveiro não esquentava, mas o recepcionista me deu um abraço. Carla L.");
+        feedbacks.add("Achei que era pegadinha. Mas dormi bem. Lucas R.");
+        feedbacks.add("Wi-Fi só pegava se você subisse na pia com o braço levantado. Anônimo");
     }
     
     public void adicionarCliente(Cliente cliente) {
@@ -41,7 +50,7 @@ public class Hotel {
     public boolean removerCliente(String documento) {
         for (int i = 0; i < clientes.size(); i++) {
             if (clientes.get(i).getDocumento().equals(documento)) {
-                // Verificar se o cliente tem reservas ativas
+              
                 boolean temReservasAtivas = false;
                 for (Reserva reserva : reservas) {
                     if (reserva.getCliente().getDocumento().equals(documento) && reserva.isAtiva()) {
@@ -89,7 +98,7 @@ public class Hotel {
     }
     
     public Reserva fazerReserva(Cliente cliente, Quarto quarto, LocalDate checkIn, LocalDate checkOut) {
-        // Validações
+       
         if (cliente == null) {
             throw new IllegalArgumentException("Cliente não pode ser nulo");
         }
@@ -125,7 +134,6 @@ public class Hotel {
     }
     
     public boolean transferirHospede(int idReserva, String novoNumeroQuarto) {
-        // Encontrar a reserva ativa
         Reserva reserva = null;
         for (Reserva r : reservas) {
             if (r.getId() == idReserva && r.isAtiva()) {
@@ -138,7 +146,6 @@ public class Hotel {
             return false;
         }
         
-        // Encontrar o novo quarto
         Quarto novoQuarto = null;
         for (Quarto q : quartos) {
             if (q.getNumero().equals(novoNumeroQuarto) && q.isDisponivel()) {
@@ -151,17 +158,15 @@ public class Hotel {
             return false;
         }
         
-        // Liberar quarto atual e ocupar novo quarto
         reserva.getQuarto().setDisponivel(true);
         novoQuarto.setDisponivel(false);
         
-        // Atualizar reserva com novo quarto (usando reflexão para acessar campo privado)
         try {
             java.lang.reflect.Field quartoField = Reserva.class.getDeclaredField("quarto");
             quartoField.setAccessible(true);
             quartoField.set(reserva, novoQuarto);
             
-            // Recalcular valor total
+           
             java.lang.reflect.Field valorField = Reserva.class.getDeclaredField("valorTotal");
             valorField.setAccessible(true);
             int dias = (int) java.time.temporal.ChronoUnit.DAYS.between(reserva.getCheckIn(), reserva.getCheckOut());
@@ -170,7 +175,7 @@ public class Hotel {
             
             return true;
         } catch (Exception e) {
-            // Se falhar, reverter mudanças
+           
             reserva.getQuarto().setDisponivel(false);
             novoQuarto.setDisponivel(true);
             return false;
@@ -196,7 +201,7 @@ public class Hotel {
         System.out.println("Reservas ativas: " + getReservasAtivas().size());
         System.out.println("Reservas canceladas: " + (reservas.size() - getReservasAtivas().size()));
         
-        // Calcular receita total
+       
         double receitaTotal = 0.0;
         for (Reserva reserva : getReservasAtivas()) {
             receitaTotal += reserva.getValorTotal();
@@ -241,8 +246,64 @@ public class Hotel {
         System.out.println("Reservas: " + getReservasAtivas().size() + " ativas");
     }
     
-    // Getters
+   
     public List<Quarto> getQuartos() { return quartos; }
     public List<Cliente> getClientes() { return clientes; }
     public List<Reserva> getReservas() { return reservas; }
+    public List<String> getFeedbacks() { return feedbacks; }
+    
+    public void adicionarFeedback(String feedback) {
+        feedbacks.add(feedback);
+    }
+
+    public Reserva buscarReserva(int id) {
+        for (Reserva reserva : reservas) {
+            if (reserva.getId() == id) {
+                return reserva;
+            }
+        }
+        return null;
+    }
+
+    public ResultadoRenovacao renovarReservaComDetalhes(int idReserva, LocalDate novaDataCheckOut) {
+       
+        Reserva reserva = buscarReserva(idReserva);
+        if (reserva == null) {
+            return new ResultadoRenovacao(false, "Reserva não encontrada!");
+        }
+        
+        if (!reserva.isAtiva()) {
+            return new ResultadoRenovacao(false, "Reserva já foi cancelada!");
+        }
+        
+        // Verificar se a nova data é posterior ao check-in
+        if (novaDataCheckOut.isBefore(reserva.getCheckIn())) {
+            return new ResultadoRenovacao(false, "A nova data de check-out não pode ser anterior ao check-in!");
+        }
+        
+        if (novaDataCheckOut.equals(reserva.getCheckIn())) {
+            return new ResultadoRenovacao(false, "A nova data de check-out deve ser posterior ao check-in!");
+        }
+        
+        
+        double valorAntigo = reserva.getValorTotal();
+        int novosDias = (int) ChronoUnit.DAYS.between(reserva.getCheckIn(), novaDataCheckOut);
+        double valorNovo = reserva.getQuarto().calcularPreco(novosDias);
+        
+       
+        Reserva novaReserva = new Reserva(reserva.getCliente(), reserva.getQuarto(), 
+                                        reserva.getCheckIn(), novaDataCheckOut);
+     
+        reserva.cancelar();
+   
+        reservas.add(novaReserva);
+        
+        return new ResultadoRenovacao(true, valorAntigo, valorNovo, "Reserva renovada com sucesso!");
+    }
+    
+ 
+    public boolean renovarReserva(int idReserva, LocalDate novaDataCheckOut) {
+        ResultadoRenovacao resultado = renovarReservaComDetalhes(idReserva, novaDataCheckOut);
+        return resultado.isSucesso();
+    }
 }
